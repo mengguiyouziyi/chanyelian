@@ -31,7 +31,6 @@ class TouzishijianSpider(scrapy.Spider):
 		js_url = 'http://hk.56dili.cn/index2.php?app=public&mod=citypub&act=graphics&var=1*{}'
 		for city in citys:
 			url = js_url.format(city)
-			print(url)
 			yield scrapy.Request(url, meta={'city': city})
 
 	def parse(self, response):
@@ -48,7 +47,6 @@ class TouzishijianSpider(scrapy.Spider):
 					continue
 				for p in range(page):
 					url = p_url.format(page=p + 1, city=city, cat=ind_cat)
-					print(url)
 					yield scrapy.Request(url, callback=self.parse_list, meta={'city': city, 'cat': cat})
 
 	def parse_list(self, response):
