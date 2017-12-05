@@ -5,16 +5,14 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-from scrapy.exceptions import CloseSpider
 from traceback import print_exc
-from chan_ye.items import DiliItem
 from util.info import etl
 
 
 class MysqlPipeline(object):
 	def __init__(self, crawler):
 		self.crawler = crawler
-		self.tab = 'chanyelian_kejiwuliu_jtbrs'
+		self.tab = 'chanyelian_robot_china'
 		self.conn = etl
 		self.cursor = self.conn.cursor()
 		self.col_list = self._get_column(self.tab)[1:-1]
@@ -58,17 +56,13 @@ class MysqlPipeline(object):
 		return x
 
 	def process_item(self, item, spider):
-		if isinstance(item, DiliItem):
-			sql = """insert into {tab} ({col}) VALUES ({val})""".format(tab=self.tab, col=self.col_str,
-			                                                            val=self.val_str)
-			args = [item[i] for i in self.col_list]
-		else:
-			raise CloseSpider('no item match...')
+		sql = """insert into {tab} ({col}) VALUES ({val})""".format(tab=self.tab, col=self.col_str, val=self.val_str)
+		args = [item[i] for i in self.col_list]
 		try:
 			self.cursor.execute(sql, args)
 			self.conn.commit()
-			print(item['comp_name'])
+			print(item['detail_url'])
 		except:
 			print_exc()
-			print('mysql error，公司为:{si}'.format(si=item['comp_name']))
+			print('mysql error，公司为:{si}'.format(si=item['detail_url']))
 			self.crawler.engine.close_spider(spider, 'mysql error')
