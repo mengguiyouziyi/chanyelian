@@ -2,6 +2,9 @@
 import scrapy
 from scrapy.selector import Selector
 from chan_ye.items import JqrProductItem
+from util.info import startup_nodes
+from rediscluster import StrictRedisCluster
+from scrapy.exceptions import CloseSpider
 
 
 class TouzishijianSpider(scrapy.Spider):
@@ -22,10 +25,16 @@ class TouzishijianSpider(scrapy.Spider):
 	# 	}
 	# }
 
+	def __init__(self):
+		self.rc = StrictRedisCluster(startup_nodes=startup_nodes, decode_responses=True)
+
 	def start_requests(self):
-		urls = ['http://www.robot-china.com/sell/show-{}.html'.format(i) for i in range(12,33500)]
-		for url in urls:
-			yield scrapy.Request(url, meta={'dont_redirect': True})
+		while True:
+			i = self.rc.spop('jqr_product')
+			if not i:
+				raise CloseSpider('no datas')
+			url = 'http://www.robot-china.com/sell/show-{}.html'
+			yield scrapy.Request(url.format(i), meta={'dont_redirect': True})
 
 	def parse(self, response):
 		if response.status == 404:

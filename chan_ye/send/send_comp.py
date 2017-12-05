@@ -11,23 +11,15 @@ sys.path.append(path)
 sys.path.append(base_path)
 sys.path.append(father_path)
 
-from util.info import startup_nodes, etl
+from util.info import startup_nodes
 from rediscluster import StrictRedisCluster
 
 
 def send_key(key):
 	rc = StrictRedisCluster(startup_nodes=startup_nodes, decode_responses=True)
-	cursor = etl.cursor()
-	sql = """select id, only_id, comp_full_name from zhuanli_shenqing_comp"""
-	cursor.execute(sql)
-	results = cursor.fetchall()
-	values = [str(result['id']) + '~' + str(result['only_id']) + '~' + str(result['comp_full_name']) for result in
-	          results]
-	if values:
-		for i, value in enumerate(values):
-			rc.lpush(key, value)
-			print(i)
+	for i in range(12, 33500):
+		rc.sadd(key, i)
 
 
 if __name__ == '__main__':
-	send_key(key='cnipr_comp')
+	send_key(key='jqr_product')
