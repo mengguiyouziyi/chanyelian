@@ -23,7 +23,7 @@ class TouzishijianSpider(scrapy.Spider):
 	# }
 
 	def start_requests(self):
-		urls = ['http://www.robot-china.com/sell/show-{}.html'.format(i) for i in range(6,33500)]
+		urls = ['http://www.robot-china.com/sell/show-{}.html'.format(i) for i in range(12,33500)]
 		for url in urls:
 			yield scrapy.Request(url, meta={'dont_redirect': True})
 
@@ -42,8 +42,8 @@ class TouzishijianSpider(scrapy.Spider):
 		time_to = ''
 		last_update = ''
 		for li in li_s:
-			b = li.xpath('./b/text()').extract_first()
-			span = li.xpath('./span/text()').extract()
+			b = li.xpath('./b//text()').extract_first()
+			span = li.xpath('./span//text()').extract()
 			span = ''.join(span) if span else ''
 			if '品   牌：' in b:
 				brand = span
@@ -59,7 +59,7 @@ class TouzishijianSpider(scrapy.Spider):
 				time_to = span
 			elif '最后更新：' in b:
 				last_update = span
-		abs = select.xpath('//span[@class="xieceproduwz"]/text()').extract()
+		abs = select.xpath('//span[@class="xieceproduwz"]//text()').extract()
 		abs = ''.join(abs) if abs else ''
 		intro = select.xpath('//div[@class="intro"]//text()').extract()
 		intro = ''.join(intro) if intro else ''
